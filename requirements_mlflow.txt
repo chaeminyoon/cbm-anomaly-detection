@@ -1,0 +1,36 @@
+# CBM 추진축계 이상 탐지 시스템 - MLflow 통합 버전
+# Python 3.8+ 권장
+
+# 데이터 처리
+pandas>=1.5.0
+numpy>=1.23.0
+pyarrow>=10.0.0  # Parquet 파일 지원
+
+# 머신러닝
+scikit-learn>=1.2.0
+tensorflow>=2.10.0
+keras>=2.10.0
+
+# 시각화
+matplotlib>=3.6.0
+seaborn>=0.12.0
+
+# MLflow - 실험 추적 및 모델 관리
+mlflow>=2.9.0
+
+# MLflow UI 및 서버 (선택사항, mlflow에 포함)
+# gunicorn>=20.1.0  # 프로덕션 서버용 (Linux/Mac)
+# waitress>=2.1.0   # 프로덕션 서버용 (Windows)
+
+# 데이터베이스 백엔드 (선택사항)
+# psycopg2-binary>=2.9.0  # PostgreSQL
+# pymysql>=1.0.0          # MySQL
+
+# 클라우드 스토리지 (선택사항)
+# boto3>=1.26.0           # AWS S3
+# azure-storage-blob>=12.0.0  # Azure Blob Storage
+# google-cloud-storage>=2.0.0 # Google Cloud Storage
+
+# 유틸리티
+tqdm>=4.64.0
+joblib>=1.2.0
