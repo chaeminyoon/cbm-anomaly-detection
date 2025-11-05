@@ -1,0 +1,22 @@
+# CBM Anomaly Detection Dashboard - Required Packages
+
+# Core Framework
+streamlit==1.40.1
+
+# Data Processing
+pandas==2.0.3
+numpy==1.24.3
+pyarrow==17.0.0
+
+# Machine Learning
+scikit-learn==1.2.2
+mlflow==2.9.0
+
+# Visualization
+plotly==5.24.0
+matplotlib==3.6.0
+seaborn==0.12.0
+
+# Others
+python-dateutil==2.9.0
+requests==2.31.0
