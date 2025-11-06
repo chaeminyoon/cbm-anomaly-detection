@@ -1,4 +1,4 @@
-# 🚢 Ship Shaft CBM Anomaly Detection System
+# Ship Shaft CBM Anomaly Detection System
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.40.1-FF4B4B?logo=streamlit)](https://streamlit.io/)
