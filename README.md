@@ -117,6 +117,15 @@ score in bulk), **Statistics & Trends** (anomaly-rate history), and **Settings**
 (model info, threshold tuning). A `Dockerfile` is included for containerized
 deployment; see [docs/AWS_DEPLOYMENT.md](docs/AWS_DEPLOYMENT.md).
 
+**Main monitoring view** — KPIs, score distribution vs. alert threshold,
+top anomaly-contributing sensors, score timeline, rolling anomaly rate:
+
+![Main dashboard](docs/screenshots/dashboard_main.png)
+
+| Real-time detection with live verdict | Daily anomaly trend analysis |
+|---|---|
+| ![Real-time detection](docs/screenshots/realtime_detection.png) | ![Statistics & trends](docs/screenshots/statistics_trends.png) |
+
 ## Limitations
 
 - The benchmark is synthetic: fault signatures follow textbook rotating-machinery

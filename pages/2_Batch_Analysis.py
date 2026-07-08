@@ -22,11 +22,27 @@ from utils.model_utils import (
 
 st.set_page_config(
     page_title="Batch Analysis",
-    page_icon="📊",
+    page_icon=":material/directions_boat:",
     layout="wide"
 )
 
-st.title("📊 Batch Data Analysis")
+# Compact professional styling (shared with main page)
+st.markdown("""
+<style>
+    .block-container { padding-top: 1.1rem; padding-bottom: 1rem; max-width: 1500px; }
+    [data-testid="stMetric"] {
+        background: #F8FAFC; border: 1px solid #E2E8F0;
+        border-radius: 6px; padding: 0.55rem 0.85rem;
+    }
+    [data-testid="stMetricValue"] { font-size: 1.45rem; }
+    [data-testid="stMetricLabel"] { font-size: 0.78rem; }
+    h1 { font-size: 1.55rem !important; color: #0B3C61; }
+    h2 { font-size: 1.12rem !important; padding-top: 0.4rem !important; }
+    h3 { font-size: 0.95rem !important; }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("Batch Data Analysis")
 st.markdown("Upload and analyze large datasets for anomaly detection")
 st.markdown("---")
 
@@ -54,7 +70,7 @@ if model is None:
     st.stop()
 
 # File upload section
-st.markdown("## 📤 Upload Data File")
+st.markdown("## Upload Data File")
 
 col1, col2 = st.columns([2, 1])
 
@@ -75,7 +91,7 @@ with col2:
     """.format(len(feature_cols)))
 
 # Use training data option
-use_training_data = st.checkbox("📚 Use training data for demo", value=False)
+use_training_data = st.checkbox("Use training data for demo", value=False)
 
 # Process data
 if uploaded_file is not None or use_training_data:
@@ -83,7 +99,7 @@ if uploaded_file is not None or use_training_data:
     with st.spinner("Loading data..."):
         if use_training_data:
             batch_df = df_normal.copy()
-            st.success(f"✅ Loaded training data: {batch_df.shape[0]:,} samples")
+            st.success(f"Loaded training data: {batch_df.shape[0]:,} samples")
         else:
             try:
                 if uploaded_file.name.endswith('.csv'):
@@ -91,19 +107,19 @@ if uploaded_file is not None or use_training_data:
                 else:
                     batch_df = pd.read_parquet(uploaded_file)
 
-                st.success(f"✅ File uploaded: {batch_df.shape[0]:,} samples, {batch_df.shape[1]} columns")
+                st.success(f"File uploaded: {batch_df.shape[0]:,} samples, {batch_df.shape[1]} columns")
             except Exception as e:
-                st.error(f"❌ Error loading file: {str(e)}")
+                st.error(f"Error loading file: {str(e)}")
                 st.stop()
 
     # Check features
     missing_features = set(feature_cols) - set(batch_df.columns)
     if missing_features:
-        st.error(f"❌ Missing required features: {list(missing_features)[:10]}...")
+        st.error(f"Missing required features: {list(missing_features)[:10]}...")
         st.stop()
 
     st.markdown("---")
-    st.markdown("## ⚙️ Analysis Settings")
+    st.markdown("## Analysis Settings")
 
     col1, col2, col3 = st.columns(3)
 
@@ -124,7 +140,7 @@ if uploaded_file is not None or use_training_data:
         export_results = st.checkbox("Enable result export", value=True)
 
     # Analyze button
-    if st.button("🔍 Run Batch Analysis", type="primary"):
+    if st.button("Run Batch Analysis", type="primary"):
 
         with st.spinner("Analyzing data..."):
             # Sample data if needed
@@ -147,10 +163,10 @@ if uploaded_file is not None or use_training_data:
             # Calculate statistics
             stats = calculate_statistics(analysis_df, predictions, anomaly_scores)
 
-        st.success("✅ Analysis complete!")
+        st.success("Analysis complete!")
 
         st.markdown("---")
-        st.markdown("## 📈 Analysis Results")
+        st.markdown("## Analysis Results")
 
         # Key metrics
         col1, col2, col3, col4 = st.columns(4)
@@ -174,7 +190,7 @@ if uploaded_file is not None or use_training_data:
 
         # Visualizations
         st.markdown("---")
-        st.markdown("## 📊 Visualizations")
+        st.markdown("## Visualizations")
 
         tab1, tab2, tab3, tab4 = st.tabs([
             "Score Distribution",
@@ -195,7 +211,7 @@ if uploaded_file is not None or use_training_data:
                 go.Histogram(
                     x=anomaly_scores[predictions == 1],
                     name='Normal',
-                    marker_color='green',
+                    marker_color='#2E6F9E',
                     opacity=0.7,
                     nbinsx=50
                 ),
@@ -206,7 +222,7 @@ if uploaded_file is not None or use_training_data:
                 go.Histogram(
                     x=anomaly_scores[predictions == -1],
                     name='Anomaly',
-                    marker_color='red',
+                    marker_color='#C4453C',
                     opacity=0.7,
                     nbinsx=50
                 ),
@@ -218,7 +234,7 @@ if uploaded_file is not None or use_training_data:
                 go.Box(
                     y=anomaly_scores[predictions == 1],
                     name='Normal',
-                    marker_color='green'
+                    marker_color='#2E6F9E'
                 ),
                 row=1, col=2
             )
@@ -227,7 +243,7 @@ if uploaded_file is not None or use_training_data:
                 go.Box(
                     y=anomaly_scores[predictions == -1],
                     name='Anomaly',
-                    marker_color='red'
+                    marker_color='#C4453C'
                 ),
                 row=1, col=2
             )
@@ -261,7 +277,7 @@ if uploaded_file is not None or use_training_data:
                 st.plotly_chart(fig, use_container_width=True)
 
             with col2:
-                st.markdown("### 📋 Top 10 Features")
+                st.markdown("### Top 10 Features")
                 st.dataframe(
                     importance_df.head(10).style.format({'importance': '{:.4f}'}),
                     use_container_width=True,
@@ -282,7 +298,7 @@ if uploaded_file is not None or use_training_data:
                 x='index',
                 y='anomaly_score',
                 color='color',
-                color_discrete_map={'Normal': 'green', 'Anomaly': 'red'},
+                color_discrete_map={'Normal': '#2E6F9E', 'Anomaly': '#C4453C'},
                 labels={'index': 'Sample Index', 'anomaly_score': 'Anomaly Score'},
                 hover_data=['prediction']
             )
@@ -292,7 +308,7 @@ if uploaded_file is not None or use_training_data:
 
         with tab4:
             # Data table
-            st.markdown("### 📋 Detailed Results")
+            st.markdown("### Detailed Results")
 
             # Filter options
             col1, col2 = st.columns(2)
@@ -332,7 +348,7 @@ if uploaded_file is not None or use_training_data:
         # Detailed anomaly analysis
         if show_details and stats['anomaly_count'] > 0:
             st.markdown("---")
-            st.markdown("## 🔍 Detailed Anomaly Analysis")
+            st.markdown("## Detailed Anomaly Analysis")
 
             # Get worst anomalies
             anomaly_df = analysis_df[analysis_df['is_anomaly']].sort_values('anomaly_score')
@@ -367,7 +383,7 @@ if uploaded_file is not None or use_training_data:
         # Export results
         if export_results:
             st.markdown("---")
-            st.markdown("## 📥 Export Results")
+            st.markdown("## Export Results")
 
             col1, col2, col3 = st.columns(3)
 
@@ -375,7 +391,7 @@ if uploaded_file is not None or use_training_data:
                 # Export all results
                 csv_all = analysis_df.to_csv(index=False)
                 st.download_button(
-                    "📄 Download All Results (CSV)",
+                    "Download All Results (CSV)",
                     csv_all,
                     "batch_analysis_full.csv",
                     "text/csv",
@@ -387,7 +403,7 @@ if uploaded_file is not None or use_training_data:
                 if stats['anomaly_count'] > 0:
                     csv_anomalies = analysis_df[analysis_df['is_anomaly']].to_csv(index=False)
                     st.download_button(
-                        "⚠️ Download Anomalies Only (CSV)",
+                        "Download Anomalies Only (CSV)",
                         csv_anomalies,
                         "batch_analysis_anomalies.csv",
                         "text/csv",
@@ -398,7 +414,7 @@ if uploaded_file is not None or use_training_data:
                 # Export feature importance
                 csv_importance = importance_df.to_csv(index=False)
                 st.download_button(
-                    "📊 Download Feature Importance (CSV)",
+                    "Download Feature Importance (CSV)",
                     csv_importance,
                     "feature_importance.csv",
                     "text/csv",
@@ -408,7 +424,7 @@ if uploaded_file is not None or use_training_data:
 else:
     # Instructions
     st.info("""
-    ### 📋 Instructions
+    ### Instructions
 
     1. **Upload a data file** (CSV or Parquet format)
        - File must contain the same {0} features as training data
@@ -423,14 +439,14 @@ else:
 
     4. **Run analysis** and view comprehensive results
 
-    ### 📦 File Format Example
+    ### File Format Example
 
     Your CSV/Parquet should have columns like:
     ```
     {1}, {2}, {3}, ...
     ```
 
-    ### 💡 Use Cases
+    ### Use Cases
 
     - **Daily Monitoring:** Upload yesterday's sensor logs
     - **Historical Analysis:** Analyze patterns over weeks/months
@@ -442,6 +458,6 @@ else:
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666;'>
-    <p>💡 <strong>Tip:</strong> For production batch processing, consider using Apache Airflow or AWS Batch for automation</p>
+    <p> <strong>Tip:</strong> For production batch processing, consider using Apache Airflow or AWS Batch for automation</p>
 </div>
 """, unsafe_allow_html=True)

@@ -109,6 +109,15 @@ python evaluation/synthetic_fault_eval.py
 **설정**(모델 정보, 임계값 조정). 컨테이너 배포용 `Dockerfile` 포함;
 [docs/AWS_DEPLOYMENT.md](docs/AWS_DEPLOYMENT.md) 참고.
 
+**메인 모니터링 화면** — KPI, 경보 임계값 대비 점수 분포, 이상 기여 상위 센서,
+점수 타임라인, 이동 이상률:
+
+![Main dashboard](docs/screenshots/dashboard_main.png)
+
+| 실시간 탐지 (라이브 판정) | 일별 이상 트렌드 분석 |
+|---|---|
+| ![Real-time detection](docs/screenshots/realtime_detection.png) | ![Statistics & trends](docs/screenshots/statistics_trends.png) |
+
 ## 한계
 
 - 벤치마크는 합성입니다: 결함 신호는 회전기계 교과서 이론을 따르지만, 실제 축계

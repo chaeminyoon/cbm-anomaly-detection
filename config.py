@@ -35,7 +35,7 @@ DB_USER = "cbm_user"
 
 # Dashboard Configuration
 PAGE_TITLE = "Ship Shaft CBM Monitoring"
-PAGE_ICON = "🚢"
+PAGE_ICON = ":material/directions_boat:"
 LAYOUT = "wide"
 REFRESH_INTERVAL = 60  # seconds
 MAX_HISTORY_DAYS = 30

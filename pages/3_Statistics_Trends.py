@@ -23,11 +23,27 @@ from utils.model_utils import (
 
 st.set_page_config(
     page_title="Statistics & Trends",
-    page_icon="📈",
+    page_icon=":material/directions_boat:",
     layout="wide"
 )
 
-st.title("📈 Statistics & Trend Analysis")
+# Compact professional styling (shared with main page)
+st.markdown("""
+<style>
+    .block-container { padding-top: 1.1rem; padding-bottom: 1rem; max-width: 1500px; }
+    [data-testid="stMetric"] {
+        background: #F8FAFC; border: 1px solid #E2E8F0;
+        border-radius: 6px; padding: 0.55rem 0.85rem;
+    }
+    [data-testid="stMetricValue"] { font-size: 1.45rem; }
+    [data-testid="stMetricLabel"] { font-size: 0.78rem; }
+    h1 { font-size: 1.55rem !important; color: #0B3C61; }
+    h2 { font-size: 1.12rem !important; padding-top: 0.4rem !important; }
+    h3 { font-size: 0.95rem !important; }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("Statistics & Trend Analysis")
 st.markdown("Monitor system health and detect trends over time")
 st.markdown("---")
 
@@ -74,10 +90,10 @@ def prepare_time_series_data():
 with st.spinner("Loading time series data..."):
     ts_df = prepare_time_series_data()
 
-st.success(f"✅ Loaded {len(ts_df):,} samples over {(ts_df['timestamp'].max() - ts_df['timestamp'].min()).days} days")
+st.success(f"Loaded {len(ts_df):,} samples over {(ts_df['timestamp'].max() - ts_df['timestamp'].min()).days} days")
 
 # Date range selector
-st.markdown("## 📅 Time Range Selection")
+st.markdown("## Time Range Selection")
 
 col1, col2 = st.columns(2)
 
@@ -103,12 +119,12 @@ filtered_df = ts_df[
     (ts_df['timestamp'].dt.date <= end_date)
 ]
 
-st.info(f"📊 Showing {len(filtered_df):,} samples from {start_date} to {end_date}")
+st.info(f"Showing {len(filtered_df):,} samples from {start_date} to {end_date}")
 
 st.markdown("---")
 
 # Key Metrics
-st.markdown("## 📊 Key Metrics")
+st.markdown("## Key Metrics")
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -131,7 +147,7 @@ with col4:
 st.markdown("---")
 
 # Visualizations
-st.markdown("## 📈 Trend Visualizations")
+st.markdown("## Trend Visualizations")
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "Time Series",
@@ -166,7 +182,7 @@ with tab1:
             y=daily_stats['anomaly_count'],
             mode='lines+markers',
             name='Anomaly Count',
-            line=dict(color='red', width=2),
+            line=dict(color='#C4453C', width=2),
             marker=dict(size=6)
         ),
         row=1, col=1
@@ -204,11 +220,11 @@ with tab1:
             trend_change = ((recent_rate - earlier_rate) / (earlier_rate + 1e-8)) * 100
 
             if trend_change > 10:
-                st.warning(f"⚠️ **Increasing Trend:** Anomaly rate increased by {trend_change:.1f}%")
+                st.warning(f"**Increasing Trend:** Anomaly rate increased by {trend_change:.1f}%")
             elif trend_change < -10:
-                st.success(f"✅ **Decreasing Trend:** Anomaly rate decreased by {abs(trend_change):.1f}%")
+                st.success(f"**Decreasing Trend:** Anomaly rate decreased by {abs(trend_change):.1f}%")
             else:
-                st.info(f"📊 **Stable Trend:** Anomaly rate changed by {trend_change:+.1f}%")
+                st.info(f"**Stable Trend:** Anomaly rate changed by {trend_change:+.1f}%")
 
     with col2:
         # Peak anomaly day
@@ -363,7 +379,7 @@ with tab4:
     fig.update_layout(height=600, template='plotly_white', showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 
-    with st.expander("📋 View Full Correlation Table"):
+    with st.expander("View Full Correlation Table"):
         st.dataframe(
             corr_df.style.format({'correlation': '{:.4f}'}),
             use_container_width=True
@@ -371,7 +387,7 @@ with tab4:
 
 # Statistical Summary
 st.markdown("---")
-st.markdown("## 📋 Statistical Summary")
+st.markdown("## Statistical Summary")
 
 col1, col2 = st.columns(2)
 
@@ -404,7 +420,7 @@ with col2:
 
 # Export options
 st.markdown("---")
-st.markdown("## 📥 Export Reports")
+st.markdown("## Export Reports")
 
 col1, col2 = st.columns(2)
 
@@ -412,7 +428,7 @@ with col1:
     # Daily statistics export
     csv_daily = daily_stats.to_csv(index=False)
     st.download_button(
-        "📊 Download Daily Statistics",
+        "Download Daily Statistics",
         csv_daily,
         "daily_statistics.csv",
         "text/csv",
@@ -423,7 +439,7 @@ with col2:
     # Feature importance export
     csv_importance = corr_df.to_csv(index=False)
     st.download_button(
-        "📈 Download Feature Correlations",
+        "Download Feature Correlations",
         csv_importance,
         "feature_correlations.csv",
         "text/csv",
@@ -434,6 +450,6 @@ with col2:
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666;'>
-    <p>💡 <strong>Tip:</strong> Use trend analysis to predict maintenance needs and optimize operations</p>
+    <p> <strong>Tip:</strong> Use trend analysis to predict maintenance needs and optimize operations</p>
 </div>
 """, unsafe_allow_html=True)

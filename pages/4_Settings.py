@@ -15,11 +15,27 @@ from utils.model_utils import resolve_run_id
 
 st.set_page_config(
     page_title="Settings",
-    page_icon="⚙️",
+    page_icon=":material/directions_boat:",
     layout="wide"
 )
 
-st.title("⚙️ System Settings & Configuration")
+# Compact professional styling (shared with main page)
+st.markdown("""
+<style>
+    .block-container { padding-top: 1.1rem; padding-bottom: 1rem; max-width: 1500px; }
+    [data-testid="stMetric"] {
+        background: #F8FAFC; border: 1px solid #E2E8F0;
+        border-radius: 6px; padding: 0.55rem 0.85rem;
+    }
+    [data-testid="stMetricValue"] { font-size: 1.45rem; }
+    [data-testid="stMetricLabel"] { font-size: 0.78rem; }
+    h1 { font-size: 1.55rem !important; color: #0B3C61; }
+    h2 { font-size: 1.12rem !important; padding-top: 0.4rem !important; }
+    h3 { font-size: 0.95rem !important; }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("System Settings & Configuration")
 st.markdown("Configure anomaly detection parameters and alert settings")
 st.markdown("---")
 
@@ -43,7 +59,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 with tab1:
-    st.markdown("## 🤖 Model Configuration")
+    st.markdown("## Model Configuration")
 
     col1, col2 = st.columns(2)
 
@@ -86,23 +102,23 @@ with tab1:
             "Model Type": "Isolation Forest",
             "MLflow Run ID": resolve_run_id(),
             "Training Data": config.DATA_PATH,
-            "Current Status": "✅ Loaded",
+            "Current Status": "Loaded",
         })
 
-        if st.button("🔄 Reload Model", help="Reload model from MLflow"):
+        if st.button("Reload Model", help="Reload model from MLflow"):
             st.cache_resource.clear()
-            st.success("✅ Model cache cleared. Model will reload on next prediction.")
+            st.success("Model cache cleared. Model will reload on next prediction.")
             st.rerun()
 
     # Save model settings
-    if st.button("💾 Save Model Settings", type="primary"):
+    if st.button("Save Model Settings", type="primary"):
         st.session_state.settings['anomaly_threshold'] = anomaly_threshold
         st.session_state.settings['contamination_rate'] = contamination_rate
-        st.success("✅ Model settings saved!")
-        st.info("⚠️ Note: These settings affect detection sensitivity. Test thoroughly before production use.")
+        st.success("Model settings saved!")
+        st.info("Note: These settings affect detection sensitivity. Test thoroughly before production use.")
 
 with tab2:
-    st.markdown("## 🔔 Alert Configuration")
+    st.markdown("## Alert Configuration")
 
     col1, col2 = st.columns(2)
 
@@ -149,7 +165,7 @@ with tab2:
         **Sample Alert Email:**
 
         ---
-        **Subject:** 🚨 CBM Anomaly Alert - Critical
+        **Subject:** CBM Anomaly Alert - Critical
 
         **Body:**
         Anomaly Detected in Ship Shaft Monitoring System
@@ -174,20 +190,20 @@ with tab2:
         """)
 
         if alert_enabled:
-            if st.button("📧 Send Test Alert"):
-                st.success(f"✅ Test alert sent to {alert_email}")
+            if st.button("Send Test Alert"):
+                st.success(f"Test alert sent to {alert_email}")
                 st.info("Check your email inbox (including spam folder)")
 
     # Save alert settings
-    if st.button("💾 Save Alert Settings", type="primary"):
+    if st.button("Save Alert Settings", type="primary"):
         st.session_state.settings['alert_enabled'] = alert_enabled
         if alert_enabled:
             st.session_state.settings['alert_z_score'] = alert_z_score
             st.session_state.settings['alert_email'] = alert_email
-        st.success("✅ Alert settings saved!")
+        st.success("Alert settings saved!")
 
 with tab3:
-    st.markdown("## 💻 System Information")
+    st.markdown("## System Information")
 
     col1, col2 = st.columns(2)
 
@@ -215,7 +231,7 @@ with tab3:
         })
 
     st.markdown("---")
-    st.markdown("### 📊 Resource Usage")
+    st.markdown("### Resource Usage")
 
     col1, col2, col3 = st.columns(3)
 
@@ -229,7 +245,7 @@ with tab3:
         st.metric("Avg Response Time", "< 100ms", help="Typical prediction latency")
 
     st.markdown("---")
-    st.markdown("### 🔗 External Links")
+    st.markdown("### External Links")
 
     col1, col2, col3 = st.columns(3)
 
@@ -246,9 +262,9 @@ with tab3:
         st.link_button("Get Help", "#", help="Contact support team")
 
 with tab4:
-    st.markdown("## 🔧 Advanced Settings")
+    st.markdown("## Advanced Settings")
 
-    st.warning("⚠️ **Warning:** These settings are for advanced users only. Incorrect configuration may affect system performance.")
+    st.warning("**Warning:** These settings are for advanced users only. Incorrect configuration may affect system performance.")
 
     col1, col2 = st.columns(2)
 
@@ -308,20 +324,20 @@ with tab4:
         )
 
     st.markdown("---")
-    st.markdown("### 🗄️ Database Configuration (Production)")
+    st.markdown("### Database Configuration (Production)")
 
-    with st.expander("📊 Database Settings"):
+    with st.expander("Database Settings"):
         db_host = st.text_input("Database Host", value=config.DB_HOST)
         db_port = st.number_input("Database Port", value=config.DB_PORT)
         db_name = st.text_input("Database Name", value=config.DB_NAME)
         db_user = st.text_input("Database User", value=config.DB_USER)
 
-        st.info("💡 For production deployment, configure PostgreSQL or MySQL for persistence")
+        st.info("For production deployment, configure PostgreSQL or MySQL for persistence")
 
     st.markdown("---")
-    st.markdown("### ☁️ AWS Deployment Configuration")
+    st.markdown("### AWS Deployment Configuration")
 
-    with st.expander("🚀 AWS Settings"):
+    with st.expander("AWS Settings"):
         aws_region = st.selectbox(
             "AWS Region",
             ["ap-northeast-2", "us-east-1", "us-west-2", "eu-west-1"],
@@ -345,14 +361,14 @@ docker push {aws_ecr_repo}:latest
         """, language="bash")
 
     # Save advanced settings
-    if st.button("💾 Save Advanced Settings", type="primary"):
+    if st.button("Save Advanced Settings", type="primary"):
         st.session_state.settings['refresh_interval'] = refresh_interval
-        st.success("✅ Advanced settings saved!")
-        st.warning("🔄 Some settings may require application restart")
+        st.success("Advanced settings saved!")
+        st.warning("Some settings may require application restart")
 
 # Export/Import Configuration
 st.markdown("---")
-st.markdown("## 📥 Configuration Management")
+st.markdown("## Configuration Management")
 
 col1, col2, col3 = st.columns(3)
 
@@ -360,7 +376,7 @@ with col1:
     # Export configuration
     config_json = json.dumps(st.session_state.settings, indent=2)
     st.download_button(
-        "📤 Export Configuration",
+        "Export Configuration",
         config_json,
         "cbm_config.json",
         "application/json",
@@ -370,7 +386,7 @@ with col1:
 with col2:
     # Import configuration
     uploaded_config = st.file_uploader(
-        "📥 Import Configuration",
+        "Import Configuration",
         type=['json'],
         help="Upload previously exported configuration"
     )
@@ -379,13 +395,13 @@ with col2:
         try:
             imported_settings = json.load(uploaded_config)
             st.session_state.settings.update(imported_settings)
-            st.success("✅ Configuration imported successfully!")
+            st.success("Configuration imported successfully!")
         except Exception as e:
-            st.error(f"❌ Error importing configuration: {str(e)}")
+            st.error(f"Error importing configuration: {str(e)}")
 
 with col3:
     # Reset to defaults
-    if st.button("🔄 Reset to Defaults", help="Reset all settings to default values"):
+    if st.button("Reset to Defaults", help="Reset all settings to default values"):
         st.session_state.settings = {
             'anomaly_threshold': config.ANOMALY_THRESHOLD,
             'contamination_rate': config.CONTAMINATION_RATE,
@@ -394,13 +410,13 @@ with col3:
             'alert_email': config.ALERT_EMAIL,
             'refresh_interval': config.REFRESH_INTERVAL,
         }
-        st.success("✅ Settings reset to defaults")
+        st.success("Settings reset to defaults")
         st.rerun()
 
 # Footer
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666;'>
-    <p>💡 <strong>Tip:</strong> Export your configuration before making changes to easily rollback if needed</p>
+    <p> <strong>Tip:</strong> Export your configuration before making changes to easily rollback if needed</p>
 </div>
 """, unsafe_allow_html=True)

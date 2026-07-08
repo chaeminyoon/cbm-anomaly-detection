@@ -78,6 +78,7 @@ tmp/
 *.png
 !docs/*.png
 !docs/analysis/*.png
+!docs/screenshots/*.png
 !screenshots/*.png
 
 # macOS AppleDouble files (exFAT volumes)

@@ -21,11 +21,27 @@ from utils.model_utils import (
 
 st.set_page_config(
     page_title="Real-time Detection",
-    page_icon="🔍",
+    page_icon=":material/directions_boat:",
     layout="wide"
 )
 
-st.title("🔍 Real-time Anomaly Detection")
+# Compact professional styling (shared with main page)
+st.markdown("""
+<style>
+    .block-container { padding-top: 1.1rem; padding-bottom: 1rem; max-width: 1500px; }
+    [data-testid="stMetric"] {
+        background: #F8FAFC; border: 1px solid #E2E8F0;
+        border-radius: 6px; padding: 0.55rem 0.85rem;
+    }
+    [data-testid="stMetricValue"] { font-size: 1.45rem; }
+    [data-testid="stMetricLabel"] { font-size: 0.78rem; }
+    h1 { font-size: 1.55rem !important; color: #0B3C61; }
+    h2 { font-size: 1.12rem !important; padding-top: 0.4rem !important; }
+    h3 { font-size: 0.95rem !important; }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("Real-time Anomaly Detection")
 st.markdown("Input sensor data to detect anomalies in real-time")
 st.markdown("---")
 
@@ -53,14 +69,14 @@ if model is None:
     st.stop()
 
 # Input methods
-st.markdown("## 📥 Input Method")
+st.markdown("## Input Method")
 input_method = st.radio(
     "Choose input method:",
     ["Manual Input (Top 10 Features)", "Random Sample", "Upload CSV"]
 )
 
 if input_method == "Manual Input (Top 10 Features)":
-    st.markdown("### 📝 Enter Sensor Values (Top 10 Critical Sensors)")
+    st.markdown("### Enter Sensor Values (Top 10 Critical Sensors)")
     st.info("For simplicity, enter values for the top 10 most important sensors. Others will use average values.")
 
     # Top 10 features based on previous analysis
@@ -85,7 +101,7 @@ if input_method == "Manual Input (Top 10 Features)":
     full_input = df_normal[feature_cols].mean().to_dict()
     full_input.update(input_data)
 
-    if st.button("🔍 Detect Anomaly", type="primary"):
+    if st.button("Detect Anomaly", type="primary"):
         # Prepare data
         input_array = np.array([full_input[feat] for feat in feature_cols])
 
@@ -93,17 +109,17 @@ if input_method == "Manual Input (Top 10 Features)":
         prediction, score = predict_anomaly(model, scaler, feature_cols, input_array)
 
         st.markdown("---")
-        st.markdown("## 📊 Detection Results")
+        st.markdown("## Detection Results")
 
         col1, col2, col3 = st.columns(3)
 
         with col1:
             if prediction == -1:
-                st.error("### ⚠️ ANOMALY DETECTED!")
-                st.markdown("**Status:** 🚨 Abnormal")
+                st.error("### ANOMALY DETECTED!")
+                st.markdown("**Status:** Abnormal")
             else:
-                st.success("### ✅ NORMAL")
-                st.markdown("**Status:** ✅ Normal")
+                st.success("### NORMAL")
+                st.markdown("**Status:** Normal")
 
         with col2:
             st.metric("Anomaly Score", f"{score:.6f}")
@@ -115,7 +131,7 @@ if input_method == "Manual Input (Top 10 Features)":
 
         if prediction == -1:
             st.markdown("---")
-            st.markdown("## 🔧 Root Cause Analysis")
+            st.markdown("## Root Cause Analysis")
 
             # Analyze causes
             input_df = pd.DataFrame([full_input])
@@ -143,14 +159,14 @@ if input_method == "Manual Input (Top 10 Features)":
                         title={'text': "Z-Score"},
                         gauge={
                             'axis': {'range': [0, 10]},
-                            'bar': {'color': "red" if cause['z_score'] > 3 else "orange"},
+                            'bar': {'color': "#C4453C" if cause['z_score'] > 3 else "#D97706"},
                             'steps': [
                                 {'range': [0, 2], 'color': "lightgreen"},
                                 {'range': [2, 3], 'color': "yellow"},
                                 {'range': [3, 10], 'color': "lightcoral"}
                             ],
                             'threshold': {
-                                'line': {'color': "red", 'width': 4},
+                                'line': {'color': "#C4453C", 'width': 4},
                                 'thickness': 0.75,
                                 'value': 3
                             }
@@ -160,7 +176,7 @@ if input_method == "Manual Input (Top 10 Features)":
                     st.plotly_chart(fig, use_container_width=True)
 
             st.markdown("---")
-            st.markdown("### 💡 Recommended Actions")
+            st.markdown("### Recommended Actions")
             st.warning(f"""
             1. **Immediate:** Inspect {causes[0]['feature']} sensor
             2. **Short-term:** Check correlation between top 3 sensors
@@ -169,7 +185,7 @@ if input_method == "Manual Input (Top 10 Features)":
             """)
 
 elif input_method == "Random Sample":
-    st.markdown("### 🎲 Test with Random Sample")
+    st.markdown("### Test with Random Sample")
 
     col1, col2 = st.columns([1, 3])
 
@@ -180,7 +196,7 @@ elif input_method == "Random Sample":
         )
 
     with col2:
-        if st.button("🎲 Generate Random Sample", type="primary"):
+        if st.button("Generate Random Sample", type="primary"):
             st.session_state['random_sample'] = True
 
     if st.session_state.get('random_sample', False):
@@ -205,19 +221,19 @@ elif input_method == "Random Sample":
 
         with col1:
             if prediction == -1:
-                st.error("### ⚠️ ANOMALY DETECTED!")
+                st.error("### ANOMALY DETECTED!")
             else:
-                st.success("### ✅ NORMAL")
+                st.success("### NORMAL")
 
         with col2:
             st.metric("Anomaly Score", f"{score:.6f}")
 
         # Show sample data
-        st.markdown("### 📋 Sample Data")
+        st.markdown("### Sample Data")
         st.dataframe(sample[feature_cols].T, use_container_width=True)
 
 else:  # Upload CSV
-    st.markdown("### 📤 Upload CSV File")
+    st.markdown("### Upload CSV File")
 
     uploaded_file = st.file_uploader(
         "Upload CSV file with sensor data",
@@ -229,15 +245,15 @@ else:  # Upload CSV
         try:
             upload_df = pd.read_csv(uploaded_file)
 
-            st.success(f"✅ File uploaded: {upload_df.shape[0]} samples")
+            st.success(f"File uploaded: {upload_df.shape[0]} samples")
 
             # Check if features match
             missing_features = set(feature_cols) - set(upload_df.columns)
 
             if missing_features:
-                st.error(f"❌ Missing features: {missing_features}")
+                st.error(f"Missing features: {missing_features}")
             else:
-                if st.button("🔍 Detect Anomalies", type="primary"):
+                if st.button("Detect Anomalies", type="primary"):
                     # Predict
                     predictions = []
                     scores = []
@@ -252,7 +268,7 @@ else:  # Upload CSV
                     upload_df['anomaly_score'] = scores
 
                     # Display results
-                    st.markdown("### 📊 Results")
+                    st.markdown("### Results")
 
                     col1, col2, col3 = st.columns(3)
 
@@ -269,14 +285,14 @@ else:  # Upload CSV
 
                     # Show anomalies
                     if anomaly_count > 0:
-                        st.markdown("### ⚠️ Detected Anomalies")
+                        st.markdown("### Detected Anomalies")
                         anomaly_df = upload_df[upload_df['prediction'] == -1]
                         st.dataframe(anomaly_df, use_container_width=True)
 
                         # Download button
                         csv = anomaly_df.to_csv(index=False)
                         st.download_button(
-                            "📥 Download Anomalies CSV",
+                            "Download Anomalies CSV",
                             csv,
                             "anomalies.csv",
                             "text/csv"
@@ -287,4 +303,4 @@ else:  # Upload CSV
 
 # Footer
 st.markdown("---")
-st.info("💡 **Tip:** For production use, integrate this with real-time data streams via API or message queues.")
+st.info("**Tip:** For production use, integrate this with real-time data streams via API or message queues.")

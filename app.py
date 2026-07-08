@@ -1,14 +1,13 @@
 """
 Ship Shaft CBM Anomaly Detection Dashboard - Main Page
-Production-grade Streamlit application for AWS deployment
+Production-grade Streamlit application
 """
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 import sys
 import io
 
@@ -32,63 +31,50 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for production-grade styling
+# Compact, professional styling
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
+    .block-container {
+        padding-top: 1.1rem;
+        padding-bottom: 1rem;
+        max-width: 1500px;
+    }
+    .page-header {
+        border-bottom: 3px solid #0F4C81;
+        padding-bottom: 0.55rem;
+        margin-bottom: 0.9rem;
+    }
+    .page-header .kicker {
+        color: #64748B;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin: 0;
+    }
+    .page-header h1 {
+        color: #0B3C61;
+        font-size: 1.55rem;
         font-weight: 700;
-        color: #1f77b4;
-        margin-bottom: 1rem;
+        margin: 0.1rem 0 0 0;
+        padding: 0;
     }
-    .metric-card {
-        background-color: #f0f2f6;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border-left: 4px solid #1f77b4;
+    [data-testid="stMetric"] {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 6px;
+        padding: 0.55rem 0.85rem;
     }
-    .alert-box {
-        background-color: #ffebee;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border-left: 4px solid #d32f2f;
-    }
-    .success-box {
-        background-color: #e8f5e9;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border-left: 4px solid #4caf50;
-    }
+    [data-testid="stMetricValue"] { font-size: 1.45rem; }
+    [data-testid="stMetricLabel"] { font-size: 0.78rem; }
+    h2 { font-size: 1.12rem !important; padding-top: 0.4rem !important; }
+    h3 { font-size: 0.95rem !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# Sidebar
-with st.sidebar:
-    st.markdown("## 🚢 CBM Monitor")
-    st.markdown("---")
-    st.markdown("### Navigation")
-    st.info("""
-    **Main Pages:**
-    - 🏠 Home (current)
-    - 🔍 Real-time Detection
-    - 📊 Batch Analysis
-    - 📈 Statistics & Trends
-    - ⚙️ Settings
-    """)
-
-    st.markdown("---")
-    st.markdown("### System Status")
-    st.success("✅ Model Loaded")
-    run_id = resolve_run_id()
-    st.info(f"🔧 Run ID: {run_id[:8]}..." if run_id else "🔧 Run ID: not resolved")
-
-    st.markdown("---")
-    st.markdown("### Quick Stats")
-
-# Main content
-st.markdown('<div class="main-header">🚢 Ship Shaft CBM Monitoring Dashboard</div>', unsafe_allow_html=True)
-st.markdown("**Real-time Condition-Based Maintenance Anomaly Detection System**")
-st.markdown("---")
+CHART_MARGIN = dict(l=10, r=10, t=32, b=10)
+NORMAL_COLOR = '#2E6F9E'
+ANOMALY_COLOR = '#C4453C'
 
 # Load model and data
 with st.spinner("Loading model and data..."):
@@ -96,174 +82,133 @@ with st.spinner("Loading model and data..."):
     df, feature_cols = load_training_data()
 
     if model is None or df is None:
-        st.error("❌ Failed to load model or data. Please check configuration.")
+        st.error("Failed to load model or data. Please check configuration.")
         st.stop()
 
     scaler = prepare_scaler(df, feature_cols)
 
-    # Get predictions on training data
     X = scaler.transform(df[feature_cols])
     predictions = model.predict(X)
     anomaly_scores = model.score_samples(X)
 
-    # Calculate statistics
     stats = calculate_statistics(df, predictions, anomaly_scores)
 
-# Key Metrics Dashboard
-st.markdown("## 📊 Key Performance Indicators")
-col1, col2, col3, col4 = st.columns(4)
+# Sidebar
+with st.sidebar:
+    st.markdown("### System Status")
+    st.success("Model loaded")
+    run_id = resolve_run_id()
+    st.caption(f"MLflow run `{run_id[:12]}`" if run_id else "Run ID: not resolved")
+    st.markdown("---")
+    st.markdown("### Quick Stats")
+    st.metric("Anomaly Rate", f"{stats['anomaly_rate']:.2f}%")
+    st.metric("Windows Monitored", f"{stats['total_samples']:,}")
 
-with col1:
-    st.metric(
-        label="Total Samples",
-        value=f"{stats['total_samples']:,}",
-        delta=None
-    )
+# Header
+st.markdown(
+    '<div class="page-header">'
+    '<div class="kicker">Condition-Based Maintenance &middot; Propulsion Shaft</div>'
+    '<h1>Ship Shaft CBM Monitoring</h1>'
+    '</div>',
+    unsafe_allow_html=True)
 
-with col2:
-    st.metric(
-        label="Normal Data",
-        value=f"{stats['normal_count']:,}",
-        delta=f"{100 - stats['anomaly_rate']:.1f}%"
-    )
+# KPI row
+col1, col2, col3, col4, col5 = st.columns(5)
+col1.metric("Monitored Windows", f"{stats['total_samples']:,}")
+col2.metric("Normal", f"{stats['normal_count']:,}")
+col3.metric("Anomalies", f"{stats['anomaly_count']:,}")
+col4.metric("Anomaly Rate", f"{stats['anomaly_rate']:.2f}%")
+col5.metric("Mean Anomaly Score", f"{stats['avg_anomaly_score']:.4f}")
 
-with col3:
-    st.metric(
-        label="Anomalies Detected",
-        value=f"{stats['anomaly_count']:,}",
-        delta=f"-{stats['anomaly_rate']:.2f}%",
-        delta_color="inverse"
-    )
+# ---- Charts grid (2 x 2) ----
+row1_left, row1_right = st.columns(2)
 
-with col4:
-    st.metric(
-        label="Avg Anomaly Score",
-        value=f"{stats['avg_anomaly_score']:.4f}",
-        delta=None
-    )
-
-st.markdown("---")
-
-# Visualizations
-st.markdown("## 📈 Data Visualization")
-
-tab1, tab2, tab3 = st.tabs(["Distribution", "Feature Importance", "Recent Activity"])
-
-with tab1:
-    st.markdown("### Anomaly Score Distribution")
-
-    # Create histogram
+with row1_left:
     fig = go.Figure()
-
     fig.add_trace(go.Histogram(
-        x=anomaly_scores[predictions == 1],
-        name='Normal',
-        marker_color='green',
-        opacity=0.7,
-        nbinsx=50
-    ))
-
+        x=anomaly_scores[predictions == 1], name='Normal',
+        marker_color=NORMAL_COLOR, opacity=0.8, nbinsx=50))
     fig.add_trace(go.Histogram(
-        x=anomaly_scores[predictions == -1],
-        name='Anomaly',
-        marker_color='red',
-        opacity=0.7,
-        nbinsx=50
-    ))
-
+        x=anomaly_scores[predictions == -1], name='Anomaly',
+        marker_color=ANOMALY_COLOR, opacity=0.8, nbinsx=50))
+    fig.add_vline(x=config.ANOMALY_THRESHOLD, line_dash='dash', line_color=ANOMALY_COLOR,
+                  line_width=1.5)
     fig.update_layout(
-        barmode='overlay',
-        xaxis_title='Anomaly Score',
-        yaxis_title='Frequency',
-        height=400,
-        template='plotly_white'
-    )
-
+        title=dict(text='Anomaly Score Distribution (dashed: alert threshold)', font_size=13),
+        barmode='overlay', height=300, template='plotly_white', margin=CHART_MARGIN,
+        xaxis_title=None, yaxis_title='windows',
+        legend=dict(orientation='h', yanchor='bottom', y=1.0, xanchor='right', x=1, font_size=10))
     st.plotly_chart(fig, use_container_width=True)
 
-with tab2:
-    st.markdown("### Top 10 Important Features")
-
-    # Get feature importance
+with row1_right:
     importance_df = get_feature_importance(model, scaler, feature_cols, df, predictions)
     top_10 = importance_df.head(10)
-
     fig = px.bar(
-        top_10.iloc[::-1],
-        x='importance',
-        y='feature',
-        orientation='h',
-        color='importance',
-        color_continuous_scale='Reds',
-        labels={'importance': 'Avg Z-Score (Anomaly Contribution)', 'feature': 'Sensor/Feature'}
-    )
-
+        top_10.iloc[::-1], x='importance', y='feature', orientation='h',
+        color='importance', color_continuous_scale='Blues',
+        labels={'importance': 'mean |z| over anomalies', 'feature': ''})
     fig.update_layout(
-        height=400,
-        template='plotly_white',
-        showlegend=False
-    )
-
+        title=dict(text='Top 10 Anomaly-Contributing Sensors', font_size=13),
+        height=300, template='plotly_white', margin=CHART_MARGIN,
+        showlegend=False, coloraxis_showscale=False, yaxis=dict(tickfont_size=10))
     st.plotly_chart(fig, use_container_width=True)
 
-    with st.expander("📋 View Full Feature Importance Table"):
-        st.dataframe(importance_df, use_container_width=True)
+row2_left, row2_right = st.columns(2)
 
-with tab3:
-    st.markdown("### Recent Anomaly Activity (Simulated)")
+with row2_left:
+    idx = np.arange(len(anomaly_scores))
+    normal_mask = predictions == 1
+    fig = go.Figure()
+    fig.add_trace(go.Scattergl(
+        x=idx[normal_mask], y=anomaly_scores[normal_mask], mode='markers',
+        name='Normal', marker=dict(color=NORMAL_COLOR, size=3, opacity=0.45)))
+    fig.add_trace(go.Scattergl(
+        x=idx[~normal_mask], y=anomaly_scores[~normal_mask], mode='markers',
+        name='Anomaly', marker=dict(color=ANOMALY_COLOR, size=5, opacity=0.85)))
+    fig.add_hline(y=config.ANOMALY_THRESHOLD, line_dash='dash', line_color=ANOMALY_COLOR,
+                  line_width=1.5)
+    fig.update_layout(
+        title=dict(text='Anomaly Score Timeline', font_size=13),
+        height=300, template='plotly_white', margin=CHART_MARGIN,
+        xaxis_title='window index', yaxis_title='score',
+        legend=dict(orientation='h', yanchor='bottom', y=1.0, xanchor='right', x=1, font_size=10))
+    st.plotly_chart(fig, use_container_width=True)
 
-    # Simulate recent activity with timestamps
-    recent_anomalies = df[predictions == -1].tail(10).copy()
-    recent_anomalies['timestamp'] = pd.date_range(
-        end=datetime.now(),
-        periods=len(recent_anomalies),
-        freq='1H'
-    )
-    recent_anomalies['anomaly_score'] = anomaly_scores[predictions == -1][-10:]
+with row2_right:
+    window = 100
+    rolling_rate = pd.Series((predictions == -1).astype(float)).rolling(
+        window, min_periods=20).mean() * 100
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=idx, y=rolling_rate, mode='lines', name='rolling anomaly rate',
+        line=dict(color=NORMAL_COLOR, width=2)))
+    fig.add_hline(y=config.CONTAMINATION_RATE * 100, line_dash='dash',
+                  line_color='#94A3B8', line_width=1.5,
+                  annotation_text='expected rate', annotation_font_size=10)
+    fig.update_layout(
+        title=dict(text=f'Rolling Anomaly Rate (window = {window})', font_size=13),
+        height=300, template='plotly_white', margin=CHART_MARGIN,
+        xaxis_title='window index', yaxis_title='%')
+    st.plotly_chart(fig, use_container_width=True)
 
-    if len(recent_anomalies) > 0:
-        st.dataframe(
-            recent_anomalies[['timestamp', 'anomaly_score']].style.format({
-                'anomaly_score': '{:.6f}'
-            }),
-            use_container_width=True
-        )
-    else:
-        st.info("No recent anomalies detected.")
+# ---- Model / data summary ----
+st.markdown("## System Information")
+info_col1, info_col2 = st.columns(2)
+with info_col1:
+    st.dataframe(pd.DataFrame({
+        'Property': ['Model', 'MLflow run', 'Contamination', 'Score threshold', 'Features'],
+        'Value': ['Isolation Forest', (run_id or '-')[:16],
+                  f"{config.CONTAMINATION_RATE:.0%}", str(config.ANOMALY_THRESHOLD),
+                  str(len(feature_cols))],
+    }), hide_index=True, use_container_width=True)
+with info_col2:
+    st.dataframe(pd.DataFrame({
+        'Property': ['Data source', 'Records', 'Shape', 'Loaded at'],
+        'Value': [config.DATA_PATH, f"{stats['total_samples']:,}", str(df.shape),
+                  datetime.now().strftime('%Y-%m-%d %H:%M')],
+    }), hide_index=True, use_container_width=True)
 
 st.markdown("---")
-
-# System Information
-st.markdown("## ⚙️ System Information")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.markdown("### Model Information")
-    st.json({
-        "Model Type": "Isolation Forest",
-        "MLflow Run ID": resolve_run_id(),
-        "Contamination Rate": f"{config.CONTAMINATION_RATE * 100}%",
-        "Threshold": config.ANOMALY_THRESHOLD,
-        "Features": len(feature_cols)
-    })
-
-with col2:
-    st.markdown("### Data Information")
-    st.json({
-        "Data Source": config.DATA_PATH,
-        "Total Records": stats['total_samples'],
-        "Data Shape": str(df.shape),
-        "Last Updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    })
-
-# Footer
-st.markdown("---")
-st.markdown("""
-<div style='text-align: center; color: #666;'>
-    <p>CBM Anomaly Detection Dashboard v1.0 | Powered by Streamlit & MLflow</p>
-    <p>🔗 <a href='http://localhost:5000' target='_blank'>MLflow UI</a> |
-    📚 <a href='#'>Documentation</a> |
-    🐛 <a href='#'>Report Issue</a></p>
-</div>
-""", unsafe_allow_html=True)
+st.caption("CBM Anomaly Detection Dashboard v1.1 | Streamlit + MLflow | "
+           "[MLflow UI](http://localhost:5000) | "
+           "[GitHub](https://github.com/chaeminyoon/cbm-anomaly-detection)")
