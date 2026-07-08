@@ -106,10 +106,10 @@ git --version
 pip install streamlit plotly mlflow pandas numpy scikit-learn pyarrow
 ```
 
-또는 `requirements_dashboard.txt` 사용:
+또는 `requirements.txt` 사용:
 
 ```bash
-pip install -r requirements_dashboard.txt
+pip install -r requirements.txt
 ```
 
 ### 2️⃣ 대시보드 실행
@@ -144,7 +144,7 @@ http://localhost:8501
 
 ---
 
-### 🔍 실시간 탐지 (pages/1_실시간_탐지.py)
+### 🔍 실시간 탐지 (pages/1_Realtime_Detection.py)
 
 **주요 기능:**
 1. **Manual Input**: Top 10 센서 수동 입력
@@ -167,7 +167,7 @@ http://localhost:8501
 
 ---
 
-### 📊 배치 분석 (pages/2_배치_분석.py)
+### 📊 배치 분석 (pages/2_Batch_Analysis.py)
 
 **주요 기능:**
 - CSV/Parquet 파일 업로드
@@ -192,7 +192,7 @@ http://localhost:8501
 
 ---
 
-### 📈 통계 및 트렌드 (pages/3_통계_트렌드.py)
+### 📈 통계 및 트렌드 (pages/3_Statistics_Trends.py)
 
 **주요 기능:**
 - 날짜 범위 선택
@@ -215,7 +215,7 @@ http://localhost:8501
 
 ---
 
-### ⚙️ 설정 (pages/4_설정.py)
+### ⚙️ 설정 (pages/4_Settings.py)
 
 **설정 항목:**
 1. **Model Settings**
@@ -326,22 +326,22 @@ aws ecs register-task-definition --cli-input-json file://task-definition.json
 D:\Downloads\
 ├── app.py                          # 메인 홈 페이지
 ├── config.py                       # 설정 파일
-├── requirements_dashboard.txt      # Python 패키지
+├── requirements.txt      # Python 패키지
 ├── Dockerfile                      # Docker 이미지 빌드
 ├── .streamlit/
 │   └── config.toml                 # Streamlit 설정
 ├── pages/
-│   ├── 1_실시간_탐지.py
-│   ├── 2_배치_분석.py
-│   ├── 3_통계_트렌드.py
-│   └── 4_설정.py
+│   ├── 1_Realtime_Detection.py
+│   ├── 2_Batch_Analysis.py
+│   ├── 3_Statistics_Trends.py
+│   └── 4_Settings.py
 ├── utils/
 │   ├── __init__.py
 │   └── model_utils.py              # 모델 로딩/예측 유틸
 ├── mlruns/                         # MLflow 모델 저장소
 ├── preprocessed_shaft_data.parquet # 학습 데이터
 ├── AWS_배포_가이드.md
-└── README_Dashboard.md
+└── docs/DASHBOARD.md
 ```
 
 ---

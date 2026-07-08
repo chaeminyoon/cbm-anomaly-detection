@@ -38,6 +38,7 @@ ENV/
 # MLflow
 mlruns/
 mlartifacts/
+mlflow.db
 
 # Data files (large files)
 *.parquet
@@ -76,4 +77,11 @@ tmp/
 # PNG outputs (generated files)
 *.png
 !docs/*.png
+!docs/analysis/*.png
 !screenshots/*.png
+
+# macOS AppleDouble files (exFAT volumes)
+._*
+
+# Generated model/threshold artifacts
+*.npy

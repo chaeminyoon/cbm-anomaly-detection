@@ -19,6 +19,7 @@ if sys.platform == 'win32':
 
 import config
 from utils.model_utils import (
+    resolve_run_id,
     load_model, load_training_data, prepare_scaler,
     get_feature_importance, calculate_statistics
 )
@@ -63,7 +64,7 @@ st.markdown("""
 
 # Sidebar
 with st.sidebar:
-    st.image("https://via.placeholder.com/150x50?text=CBM+Logo", use_container_width=True)
+    st.markdown("## 🚢 CBM Monitor")
     st.markdown("---")
     st.markdown("### Navigation")
     st.info("""
@@ -78,7 +79,8 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### System Status")
     st.success("✅ Model Loaded")
-    st.info(f"🔧 Run ID: {config.MLFLOW_RUN_ID[:8]}...")
+    run_id = resolve_run_id()
+    st.info(f"🔧 Run ID: {run_id[:8]}..." if run_id else "🔧 Run ID: not resolved")
 
     st.markdown("---")
     st.markdown("### Quick Stats")
@@ -240,7 +242,7 @@ with col1:
     st.markdown("### Model Information")
     st.json({
         "Model Type": "Isolation Forest",
-        "MLflow Run ID": config.MLFLOW_RUN_ID,
+        "MLflow Run ID": resolve_run_id(),
         "Contamination Rate": f"{config.CONTAMINATION_RATE * 100}%",
         "Threshold": config.ANOMALY_THRESHOLD,
         "Features": len(feature_cols)

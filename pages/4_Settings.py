@@ -11,6 +11,7 @@ if sys.platform == 'win32':
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 import config
+from utils.model_utils import resolve_run_id
 
 st.set_page_config(
     page_title="Settings",
@@ -83,10 +84,9 @@ with tab1:
 
         st.json({
             "Model Type": "Isolation Forest",
-            "MLflow Run ID": config.MLFLOW_RUN_ID,
+            "MLflow Run ID": resolve_run_id(),
             "Training Data": config.DATA_PATH,
             "Current Status": "✅ Loaded",
-            "Last Updated": "2025-11-05"
         })
 
         if st.button("🔄 Reload Model", help="Reload model from MLflow"):
@@ -193,12 +193,15 @@ with tab3:
 
     with col1:
         st.markdown("### Application Info")
+        import sys
+        import streamlit as _st_mod
+        import mlflow as _mlflow_mod
         st.json({
             "Application": "CBM Anomaly Detection Dashboard",
             "Version": "1.0.0",
-            "Framework": "Streamlit 1.40.1",
-            "Python Version": "3.11.9",
-            "MLflow Version": "2.9.0+",
+            "Framework": f"Streamlit {_st_mod.__version__}",
+            "Python Version": sys.version.split()[0],
+            "MLflow Version": _mlflow_mod.__version__,
             "Deployment": "Local / AWS Ready"
         })
 
@@ -206,10 +209,9 @@ with tab3:
         st.markdown("### Model Info")
         st.json({
             "Model Type": "Isolation Forest (sklearn)",
-            "Run ID": config.MLFLOW_RUN_ID,
-            "Training Samples": "~99,901",
-            "Features": "39 sensor measurements",
-            "Performance": "5.03% anomaly rate (test)"
+            "Run ID": resolve_run_id(),
+            "Contamination": f"{config.CONTAMINATION_RATE:.0%}",
+            "Data Path": config.DATA_PATH,
         })
 
     st.markdown("---")

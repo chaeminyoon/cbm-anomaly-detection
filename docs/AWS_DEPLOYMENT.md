@@ -52,8 +52,8 @@ RUN apt-get update && apt-get install -y \\
     && rm -rf /var/lib/apt/lists/*
 
 # Python 패키지 설치
-COPY requirements_dashboard.txt .
-RUN pip install --no-cache-dir -r requirements_dashboard.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 파일 복사
 COPY . .
@@ -68,7 +68,7 @@ HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health || exit 1
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]
 ```
 
-### 2️⃣ requirements_dashboard.txt 생성
+### 2️⃣ requirements.txt 생성
 
 ```txt
 streamlit==1.40.1
@@ -111,7 +111,7 @@ runtime: python3
 build:
   commands:
     build:
-      - pip install -r requirements_dashboard.txt
+      - pip install -r requirements.txt
 run:
   command: streamlit run app.py --server.port=8501 --server.address=0.0.0.0 --server.headless=true
   network:
@@ -371,7 +371,7 @@ python3.11 -m venv venv
 source venv/bin/activate
 
 # 패키지 설치
-pip install -r requirements_dashboard.txt
+pip install -r requirements.txt
 
 # Nginx 설치 (리버스 프록시)
 sudo apt install nginx -y

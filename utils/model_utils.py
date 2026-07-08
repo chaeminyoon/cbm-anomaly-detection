@@ -3,18 +3,46 @@ Model loading and prediction utilities
 """
 import mlflow
 import mlflow.sklearn
+from mlflow.tracking import MlflowClient
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import streamlit as st
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict, List, Union
 import config
+
+mlflow.set_tracking_uri(config.MLFLOW_TRACKING_URI)
+
+@st.cache_data
+def resolve_run_id() -> Union[str, None]:
+    """Resolve the model run id: pinned via config, else latest IsolationForest run"""
+    if config.MLFLOW_RUN_ID:
+        return config.MLFLOW_RUN_ID
+    try:
+        client = MlflowClient()
+        experiment = client.get_experiment_by_name(config.MLFLOW_EXPERIMENT_NAME)
+        if experiment is None:
+            return None
+        runs = client.search_runs(
+            experiment_ids=[experiment.experiment_id],
+            filter_string="params.model_type = 'IsolationForest'",
+            order_by=["start_time DESC"],
+            max_results=1,
+        )
+        return runs[0].info.run_id if runs else None
+    except Exception:
+        return None
 
 @st.cache_resource
 def load_model():
     """Load Isolation Forest model from MLflow with caching"""
+    run_id = resolve_run_id()
+    if run_id is None:
+        st.error("No trained IsolationForest run found in MLflow. "
+                 "Run training/train_models_mlflow.py first.")
+        return None
     try:
-        model = mlflow.sklearn.load_model(f'runs:/{config.MLFLOW_RUN_ID}/model')
+        model = mlflow.sklearn.load_model(f'runs:/{run_id}/model')
         return model
     except Exception as e:
         st.error(f"Failed to load model: {str(e)}")
@@ -39,7 +67,7 @@ def prepare_scaler(df, feature_cols):
     scaler.fit(df[feature_cols])
     return scaler
 
-def predict_anomaly(model, scaler, feature_cols, data: pd.DataFrame or np.ndarray) -> Tuple[int, float]:
+def predict_anomaly(model, scaler, feature_cols, data: Union[pd.DataFrame, np.ndarray]) -> Tuple[int, float]:
     """
     Predict anomaly for new data
 

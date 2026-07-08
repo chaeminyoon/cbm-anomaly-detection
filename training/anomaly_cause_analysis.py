@@ -26,17 +26,26 @@ print("="*80)
 print("🔍 Isolation Forest 이상 데이터 원인 분석 시스템")
 print("="*80)
 
-# 1. MLflow에서 학습된 Isolation Forest 모델 로드
+# 1. MLflow에서 학습된 Isolation Forest 모델 로드 (최신 런 자동 탐색)
 print("\n📦 Step 1: MLflow에서 모델 로드 중...")
-run_id = "c66eb2b2ae5e4057b839264080ce24e5"  # Isolation Forest Run ID
+from mlflow.tracking import MlflowClient
 
-try:
-    model = mlflow.sklearn.load_model(f'runs:/{run_id}/model')
-    print(f"✅ 모델 로드 완료! (Run ID: {run_id})")
-except:
-    print("❌ 모델 로드 실패. MLflow UI에서 Run ID를 확인하세요.")
-    print("   http://localhost:5000 에서 Isolation Forest의 Run ID를 복사하세요.")
+mlflow.set_tracking_uri('sqlite:///mlflow.db')
+client = MlflowClient()
+experiment = client.get_experiment_by_name('CBM_Shaft_Anomaly_Detection')
+runs = client.search_runs(
+    experiment_ids=[experiment.experiment_id] if experiment else [],
+    filter_string="params.model_type = 'IsolationForest'",
+    order_by=["start_time DESC"], max_results=1,
+) if experiment else []
+
+if not runs:
+    print("❌ 학습된 Isolation Forest 런이 없습니다. training/train_models_mlflow.py 를 먼저 실행하세요.")
     exit(1)
+
+run_id = runs[0].info.run_id
+model = mlflow.sklearn.load_model(f'runs:/{run_id}/model')
+print(f"✅ 모델 로드 완료! (Run ID: {run_id})")
 
 # 2. 데이터 로드 및 전처리
 print("\n📂 Step 2: 데이터 로드 중...")

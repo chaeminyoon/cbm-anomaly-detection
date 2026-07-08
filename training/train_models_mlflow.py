@@ -49,7 +49,8 @@ class AnomalyDetectionMLflow:
         self.data_path = data_path
         self.experiment_name = experiment_name
 
-        # MLflow 실험 설정
+        # MLflow 실험 설정 (sqlite 백엔드 — MLflow 2.x/3.x 공통으로 동작하도록 명시)
+        mlflow.set_tracking_uri('sqlite:///mlflow.db')
         mlflow.set_experiment(experiment_name)
         print(f"✅ MLflow 실험 설정: {experiment_name}")
 
@@ -599,13 +600,20 @@ class AnomalyDetectionMLflow:
 
 def main():
     """메인 실행 함수"""
+    import argparse
+    ap = argparse.ArgumentParser(description='CBM 이상 탐지 모델 학습 (MLflow 추적)')
+    ap.add_argument('--data', default='preprocessed_shaft_data.parquet',
+                    help='전처리된 특징 parquet 경로 '
+                         '(실데이터 또는 evaluation/synthetic_data_generator.py 출력)')
+    args = ap.parse_args()
+
     print("=" * 80)
     print("🔧 CBM 추진축계 이상 탐지 시스템 - MLflow 통합 버전")
     print("=" * 80)
 
     # 초기화
     detector = AnomalyDetectionMLflow(
-        data_path='preprocessed_shaft_data.parquet',
+        data_path=args.data,
         experiment_name='CBM_Shaft_Anomaly_Detection'
     )
 
